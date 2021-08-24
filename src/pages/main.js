@@ -34,15 +34,20 @@ function Main({navigation}){
      
      async function loadDevs(){
         const {latitude, longitude} = currentRegion;
-        const response = api.get('/search', {
+        const response = await api.get('/search', {
                 params: {
                   latitude,
                   longitude,
                   techs: 'react'
-              }
+              },
+              //headers: {
+             //   'Content-Type': 'application/json',
+           // }
           });
 
-          setDevs(response.data)
+          console.log(response.data.devs)
+           
+          setDevs(response.data.devs)
 
      }
 
@@ -59,19 +64,21 @@ function Main({navigation}){
     return ( 
         <> 
          <MapView onRegionChangeComplete={handleRegionChanged} initialRegion={currentRegion} style={styles.map}>
-               <Marker coordinate={{latitude: -5.0545993, longitude: -42.7325482}} >
-                  <Image style={styles.avatar} source={{uri: 'https://scontent.fthe3-1.fna.fbcdn.net/v/t31.18172-8/29744661_1600194410078249_5954443186217319569_o.jpg?_nc_cat=105&ccb=1-5&_nc_sid=8bfeb9&_nc_ohc=gzoZDCujWigAX8Edymw&_nc_ht=scontent.fthe3-1.fna&oh=f7116df2d04d656b1d046d2f3b597033&oe=61444F8B'}} />
-                  <Callout onPress={()=>{
-                       navigation.navigate('Profile', {github_username: 'amaurifilho375'})
-                  }}>
-                     <View style={styles.callout}>
-                         <Text style={styles.devName}> amauri</Text>
-                         <Text style={styles.devBio}> gosto de programar</Text>
-                         <Text style={styles.devTechs}> react, node, rails</Text>
-
-                     </View>
-                  </Callout>
-               </Marker>    
+              {devs.map(dev =>(
+                   <Marker key={dev._id} coordinate={{ longitude: dev.location.coordinates[0], latitude: dev.location.coordinates[1]}} >
+                   <Image style={styles.avatar} source={{uri: dev.avatar_url}} />
+                   <Callout onPress={()=>{
+                        navigation.navigate('Profile', {github_username: 'amaurifilho375'})
+                   }}>
+                      <View style={styles.callout}>
+                          <Text style={styles.devName}> {dev.name}</Text>
+                          <Text style={styles.devBio}> {dev.bio}</Text>
+                          <Text style={styles.devTechs}> {dev.techs.join(', ')}</Text>
+ 
+                      </View>
+                   </Callout>
+                </Marker> 
+              ))}   
            </MapView>
            <View style={styles.searchForm}>
               <TextInput
